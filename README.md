@@ -1,4 +1,4 @@
-# MultiRun
+# MultiRun <img src="MultiRun/MultiRun-Icon.ico" width="48" alt="MultiRun Icon" />
 Simplifying the art of starting processes.
 
 [![ACW Technologies](https://img.shields.io/badge/Developed%20by-ACW%20Technologies-orange.svg?style=flat-square)](http://acwtechnologies.co.uk/software/multirun)
