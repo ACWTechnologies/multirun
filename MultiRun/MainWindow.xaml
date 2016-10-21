@@ -1,0 +1,148 @@
+﻿<Window x:Name="window_editor" x:Class="MultiRun.Editor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MultiRun.Editor"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:launcher="clr-namespace:MultiRun.Launcher"
+        mc:Ignorable="d"
+        Title="MultiRun Editor" Height="600" MinHeight="600" MaxHeight="600" Width="900" MinWidth="900" MaxWidth="1200" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Closing="window_editor_Closing" Icon="MultiRun-Icon.ico">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="WindowStylesFromEnum" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="launcher:ProcessStartInformation+ProcessStartWindowStyle" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <local:SelectedIndexIntToBoolConverter x:Key="SelectedIndexIntToBoolConverter" />
+        <local:ItemCountIntToBoolConverter x:Key="ItemCountIntToBoolConverter" />
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="Open" Executed="menuItem_file_open" />
+        <CommandBinding Command="Save" Executed="menuItem_file_save" />
+        <CommandBinding Command="Close" Executed="menuItem_file_close" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="Open" />
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="Save" />
+        <KeyBinding Key="F4" Modifiers="Alt" Command="Close" />
+    </Window.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=".3*" MinWidth="149" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width=".7*" MinWidth="400" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <GridSplitter Grid.Column="1" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Center" />
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Open" Command="Open" />
+                    <MenuItem Header="_Save" Command="Save" />
+                    <MenuItem Header="_Save As">
+                        <MenuItem Header="_Json" Click="menuItem_file_saveAs_json" />
+                        <MenuItem Header="_Plain" Click="menuItem_file_saveAs_plain" />
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="_Close" Command="Close" />
+                </MenuItem>
+                <MenuItem Header="_Edit">
+                    <MenuItem Header="_Clear">
+                        <MenuItem Header="_All Items" Click="menuItem_edit_clear_allItems" />
+                        <MenuItem Header="_Current Item" Click="menuItem_edit_clear_currentItem" />
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="_Help">
+                    <MenuItem Header="_View Help" Click="menuItem_help_viewHelp" />
+                    <MenuItem Header="_Report a Problem" Click="menuItem_help_reportAProblem" />
+                    <Separator />
+                    <MenuItem Header="_About MultiRun" Click="menuItem_help_about" />
+                </MenuItem>
+            </Menu>
+            <Label Content="MultiRun" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="22" FontFamily="Segoe UI Black" />
+        </DockPanel>
+        <ListBox x:Name="listBox_items" Margin="10" Grid.Row="1" ItemTemplate="{StaticResource ItemsListBoxItem}" />
+        <DockPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="10,0,0,10">
+            <Button x:Name="button_addItem" Content="Add" Click="button_addItem_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,10,0" Width="47" />
+            <Button x:Name="button_removeItem" Content="Remove" IsEnabled="{Binding SelectedIndex, ElementName=listBox_items, Converter={StaticResource SelectedIndexIntToBoolConverter}}" Click="button_removeItem_Click" Margin="0,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" />
+            <Label DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Top" IsEnabled="{Binding Items.Count, ElementName=listBox_items, Converter={StaticResource ItemCountIntToBoolConverter}}" Margin="0,0,10,0">
+                <TextBlock Text="{Binding Items.Count, ElementName=listBox_items, StringFormat='Items: {0}'}" />
+            </Label>
+        </DockPanel>
+        <GroupBox x:Name="groupBox_item" Header="Item" Margin="10,0,10,10" Grid.RowSpan="2" Grid.Column="2" BorderBrush="#FFB9B9B9" DataContext="{Binding SelectedItem, ElementName=listBox_items}" IsEnabled="{Binding SelectedIndex, ElementName=listBox_items, Converter={StaticResource SelectedIndexIntToBoolConverter}}">
+            <Grid x:Name="grid_item">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Label Content="Full Path:" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,2,5,5" />
+                <Grid Grid.Column="2" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="textBox_fullPath" Height="23" VerticalAlignment="Top" Margin="0,0,5,0" MaxLines="1">
+                        <TextBox.Text>
+                            <Binding Path="FullPath">
+                                <Binding.ValidationRules>
+                                    <local:TextBoxRequiredRule FieldName="Full path" WhitespaceAllowed="False" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Button x:Name="button_browseFile" Content="Browse" Validation.ErrorTemplate="{StaticResource TextBoxValidationToolTipTemplate}" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="1" Margin="0" Click="button_browseFile_Click" />
+                </Grid>
+                <Label Content="Arguments:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Padding="5,2,5,5" />
+                <Label Content="Verb:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Padding="5,2,5,5" />
+                <ComboBox x:Name="comboBox" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding Verb}" VerticalAlignment="Top" Grid.Row="2" Grid.Column="2" Margin="0,0,0,10">
+                    <ComboBox.Resources>
+                        <CollectionViewSource x:Key="VerbCollection" Source="{Binding Verbs, Mode=OneWay}" />
+                    </ComboBox.Resources>
+                    <ComboBox.ItemsSource>
+                        <CompositeCollection>
+                            <ComboBoxItem x:Name="none" Tag="none">
+                                <TextBlock FontStyle="Italic">[none]</TextBlock>
+                            </ComboBoxItem>
+                            <CollectionContainer Collection="{Binding Source={StaticResource VerbCollection}, Mode=OneWay}" />
+                        </CompositeCollection>
+                    </ComboBox.ItemsSource>
+                </ComboBox>
+                <Label Content="Window Style:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="3" Padding="5,2,5,5" />
+                <Label Content="Delay (seconds):" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="4" Padding="5,2,5,5" />
+                <Grid Grid.Column="2" Grid.Row="1" Margin="0,0,0,10" VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ListBox x:Name="listBox_arguments" ItemsSource="{Binding Arguments, Mode=OneWay}" Height="250" VerticalAlignment="Top" Margin="0,0,0,5" Grid.ColumnSpan="3" />
+                    <TextBox x:Name="textBox_newArgument" Height="23" Grid.Row="1" Margin="0,0,5,0" MaxLines="1" KeyUp="textBox_newArgument_KeyUp" />
+                    <Button x:Name="button_addArgument" Content="Add" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Margin="0,0,5,0" Click="button_addArgument_Click" />
+                    <Button x:Name="button_removeArgument" Content="Remove" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" Grid.Column="2" Click="button_removeArgument_Click" IsEnabled="{Binding SelectedIndex, ElementName=listBox_arguments, Converter={StaticResource SelectedIndexIntToBoolConverter}}" />
+                </Grid>
+                <ComboBox x:Name="comboBox_windowStyle" SelectedItem="{Binding WindowStyle}" ItemsSource="{Binding Source={StaticResource WindowStylesFromEnum}, Mode=OneWay}" VerticalAlignment="Top" Grid.Row="3" Grid.Column="2" Margin="0,0,0,10" />
+                <TextBox x:Name="textBox_delay" Text="{Binding Delay}" Grid.Column="2" Height="22" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,0,10" PreviewTextInput="textBox_delay_PreviewTextInput" DataObject.Pasting="textBox_delay_Pasting" />
+            </Grid>
+        </GroupBox>
+        <Button x:Name="button_save" Content="Save" IsEnabled="{Binding Items.Count, ElementName=listBox_items, Converter={StaticResource ItemCountIntToBoolConverter}}" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="2" Click="button_save_Click" />
+    </Grid>
+</Window>
