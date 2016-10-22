@@ -5,27 +5,16 @@ namespace MultiRun.Editor
 {
     public class TextBoxRequiredRule : ValidationRule
     {
-        private string _fieldName;
-        private bool _whitespaceAllowed;
+        public string FieldName { get; set; }
 
-        public string FieldName
-        {
-            get { return _fieldName; }
-            set { _fieldName = value; }
-        }
-
-        public bool WhitespaceAllowed
-        {
-            get { return _whitespaceAllowed; }
-            set { _whitespaceAllowed = value; }
-        }
+        public bool WhitespaceAllowed { get; set; }
 
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            string s = (string)value;
+            var s = (string)value;
             if (WhitespaceAllowed)
             {
-                if (s.Length < 1)
+                if (s?.Length < 1)
                 {
                     return new ValidationResult(false, FieldName + " is required.");
                 }

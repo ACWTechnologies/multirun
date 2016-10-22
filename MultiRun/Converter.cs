@@ -8,11 +8,11 @@ namespace MultiRun
 {
     internal class Convert
     {
-        public static ProcessStartInformation[] JsonToPSIArray(string jsonContents)
+        public static ProcessStartInformation[] JsonToItemArray(string jsonContents)
         {
-            List<ProcessStartInformation> PSIs = new List<ProcessStartInformation>();
-            PSIs.AddRange(JsonConvert.DeserializeObject<List<ProcessStartInformation>>(jsonContents, new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Error }));
-            return PSIs.ToArray();
+            var items = new List<ProcessStartInformation>();
+            items.AddRange(JsonConvert.DeserializeObject<List<ProcessStartInformation>>(jsonContents, new JsonSerializerSettings { MissingMemberHandling = MissingMemberHandling.Error }));
+            return items.ToArray();
         }
 
         public static string StringArrayToString(IEnumerable<string> array)
@@ -22,10 +22,10 @@ namespace MultiRun
 
         public static string ArgArrayToString(IEnumerable<string> args)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (string arg in args)
             {
-                sb.Append(string.Format("\"{0}\" ", arg.Trim()));
+                sb.Append($"\"{arg.Trim()}\" ");
             }
             return sb.ToString().Trim();
         }

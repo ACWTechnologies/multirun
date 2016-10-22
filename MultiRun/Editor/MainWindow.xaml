@@ -7,7 +7,7 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:launcher="clr-namespace:MultiRun.Launcher"
         mc:Ignorable="d"
-        Title="MultiRun Editor" Height="600" MinHeight="600" MaxHeight="600" Width="900" MinWidth="900" MaxWidth="1200" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Closing="window_editor_Closing" Icon="MultiRun-Icon.ico">
+        Title="MultiRun Editor" Height="600" MinHeight="600" MaxHeight="600" Width="900" MinWidth="900" MaxWidth="1200" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="CanMinimize" Closing="window_editor_Closing" Icon="..\MultiRun-Icon.ico" AllowDrop="True" Drop="window_editor_Drop">
     <Window.Resources>
         <ObjectDataProvider x:Key="WindowStylesFromEnum" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -16,6 +16,7 @@
         </ObjectDataProvider>
         <local:SelectedIndexIntToBoolConverter x:Key="SelectedIndexIntToBoolConverter" />
         <local:ItemCountIntToBoolConverter x:Key="ItemCountIntToBoolConverter" />
+        <local:VerbStringToSelectedIndexIntConverter x:Key="VerbStringToSelectedIndexIntConverter" />
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="Open" Executed="menuItem_file_open" />
@@ -109,7 +110,7 @@
                 </Grid>
                 <Label Content="Arguments:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Padding="5,2,5,5" />
                 <Label Content="Verb:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Padding="5,2,5,5" />
-                <ComboBox x:Name="comboBox" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding Verb}" VerticalAlignment="Top" Grid.Row="2" Grid.Column="2" Margin="0,0,0,10">
+                <ComboBox x:Name="comboBox" Style="{StaticResource ComboBoxStyle}" SelectedIndex="{Binding Verb, Converter={StaticResource VerbStringToSelectedIndexIntConverter}}" VerticalAlignment="Top" Grid.Row="2" Grid.Column="2" Margin="0,0,0,10">
                     <ComboBox.Resources>
                         <CollectionViewSource x:Key="VerbCollection" Source="{Binding Verbs, Mode=OneWay}" />
                     </ComboBox.Resources>

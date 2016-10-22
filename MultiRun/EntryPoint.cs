@@ -7,7 +7,7 @@ namespace MultiRun
 {
     internal static class EntryPoint
     {
-        private static Logger logger = LogManager.GetLogger("CurrentDomainUnhandledExceptionLogger");
+        private static readonly Logger Logger = LogManager.GetLogger("CurrentDomainUnhandledExceptionLogger");
         private static readonly string MultiRunDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\ACW Technologies\MultiRun\";
         private static readonly string LogFileDirectory = MultiRunDirectory + @"Logs\";
 
@@ -38,7 +38,7 @@ namespace MultiRun
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            logger.Fatal((Exception)e.ExceptionObject);
+            Logger.Fatal((Exception)e.ExceptionObject);
             MessageBox.Show("An unhandled exception occurred. Message: '" + ((Exception)e.ExceptionObject).Message + "'.", "MultiRun Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -49,9 +49,7 @@ namespace MultiRun
 
         private static void BeginEditor()
         {
-            var app = new App();
-            app.InitializeComponent();
-            app.Run();
+            App.Main();
         }
     }
 }

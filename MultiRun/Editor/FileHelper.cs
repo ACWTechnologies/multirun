@@ -5,7 +5,7 @@ namespace MultiRun.Editor
 {
     internal static class FileHelper
     {
-        public static readonly Dictionary<Reader.FileType, string> FileFilters = new Dictionary<Reader.FileType, string>()
+        public static readonly Dictionary<Reader.FileType, string> FileFilters = new Dictionary<Reader.FileType, string>
         {
             { Reader.FileType.Json, "MultiRun Json File (*.mr)|*.mr" },
             { Reader.FileType.Plain, "MultiRun Plain File (*.mr)|*.mr" }
@@ -20,23 +20,23 @@ namespace MultiRun.Editor
         /// <returns>The path of the folder, or null if browse cancelled.</returns>
         public static string BrowseForFolder(string description = "", Environment.SpecialFolder rootFolder = Environment.SpecialFolder.Desktop, bool showNewFolderButton = true)
         {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            dialog.Description = description;
-            dialog.RootFolder = rootFolder;
-            dialog.ShowNewFolderButton = showNewFolderButton;
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            var dialog = new System.Windows.Forms.FolderBrowserDialog
             {
-                return dialog.SelectedPath;
-            }
-            return null;
+                Description = description,
+                RootFolder = rootFolder,
+                ShowNewFolderButton = showNewFolderButton
+            };
+
+            return dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK ? dialog.SelectedPath : null;
         }
 
         public static string BrowseForFileOpen(bool multiselect = false, string filter = null)
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.Multiselect = multiselect;
-            dialog.Filter = filter;
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Multiselect = multiselect,
+                Filter = filter
+            };
 
             if (dialog.ShowDialog() ?? false)
             {
@@ -47,8 +47,10 @@ namespace MultiRun.Editor
 
         public static string BrowseForFileSave(string filter = null)
         {
-            var dialog = new Microsoft.Win32.SaveFileDialog();
-            dialog.Filter = filter;
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = filter
+            };
 
             if (dialog.ShowDialog() ?? false)
             {
@@ -59,8 +61,10 @@ namespace MultiRun.Editor
 
         public static Microsoft.Win32.SaveFileDialog BrowseForFileSaveDialog(string filter = null)
         {
-            var dialog = new Microsoft.Win32.SaveFileDialog();
-            dialog.Filter = filter;
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = filter
+            };
 
             if (dialog.ShowDialog() ?? false)
             {

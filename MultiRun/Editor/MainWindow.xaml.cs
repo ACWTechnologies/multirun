@@ -1,8 +1,9 @@
-﻿using NLog;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Deployment.Application;
 using System.Text.RegularExpressions;
 using System.Windows;
+using NLog;
 
 namespace MultiRun.Editor
 {
@@ -11,10 +12,10 @@ namespace MultiRun.Editor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private ObservableCollection<Launcher.ProcessStartInformation> Items = new ObservableCollection<Launcher.ProcessStartInformation>();
-        private bool unsavedChanges = false;
+        private bool _unsavedChanges = false;
 
         public MainWindow()
         {
@@ -25,7 +26,7 @@ namespace MultiRun.Editor
 
         private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            unsavedChanges = true;
+            _unsavedChanges = true;
         }
 
         #region Delay textbox validation
@@ -39,7 +40,7 @@ namespace MultiRun.Editor
         {
             if (e.DataObject.GetDataPresent(typeof(string)))
             {
-                string text = (string)e.DataObject.GetData(typeof(string));
+                var text = (string)e.DataObject.GetData(typeof(string));
                 if (!IsDelayTextAllowed(text))
                 {
                     e.CancelCommand();
@@ -54,7 +55,7 @@ namespace MultiRun.Editor
         private static bool IsDelayTextAllowed(string text)
         {
             // Regex that matches disallowed text; anything that isn't the numbers 0-9
-            Regex regex = new Regex("[^0-9]+");
+            var regex = new Regex("[^0-9]+");
             return !regex.IsMatch(text);
         }
 
@@ -75,10 +76,7 @@ namespace MultiRun.Editor
             }
         }
 
-        private Launcher.ProcessStartInformation CurrentlySelectedItem
-        {
-            get { return (Launcher.ProcessStartInformation)listBox_items.SelectedItem; }
-        }
+        public static Launcher.ProcessStartInformation CurrentlySelectedItem => (Launcher.ProcessStartInformation)(Application.Current.MainWindow as MainWindow)?.listBox_items.SelectedItem;
 
         private void button_save_Click(object sender, RoutedEventArgs e)
         {
@@ -110,9 +108,9 @@ namespace MultiRun.Editor
 
         private void window_editor_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (unsavedChanges && Items.Count > 0)
+            if (_unsavedChanges && Items.Count > 0)
             {
-                var result = MessageBox.Show("You have unsaved changes. If you close now, your most recent changes will not be saved. Are you sure you want to close?", "MultiRun Close", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBoxResult result = MessageBox.Show("You have unsaved changes. If you close now, your most recent changes will not be saved. Are you sure you want to close?", "MultiRun Close", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes) { e.Cancel = true; }
             }
         }
@@ -128,17 +126,36 @@ namespace MultiRun.Editor
         /// <summary>
         /// Get the current version of the network deployed application, formatted as 'major.minor[.build[.revision]]'.
         /// </summary>
-        private string GetCurrentVersion()
+        private static string GetCurrentVersion()
         {
-            if (ApplicationDeployment.IsNetworkDeployed)
+            return ApplicationDeployment.IsNetworkDeployed ? ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString() : "Unavailable";
+        }
+
+        private void window_editor_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                // Application is network deployed
-                return ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
-            }
-            else
-            {
-                // Application is not network deployed
-                return "Unavailable";
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files == null) { return; }
+
+                if (files.Length > 1) { MessageBox.Show($"Only one MR file can be opened at a time, you dragged in {files.Length}.", "MultiRun Open", MessageBoxButton.OK, MessageBoxImage.Warning); }
+                else
+                {
+                    try
+                    {
+                        Open(files[0]);
+                    }
+                    catch (Exception ex) when (ex is InvalidPathException || ex is InvalidFileException)
+                    {
+                        Logger.Warn(ex);
+                        MessageBox.Show(ex.Message, "MultiRun Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        Logger.Error(ex);
+                        MessageBox.Show($"An exception occurred whilst attempting to open the file you dragged in.\nException message: {ex.Message}", "MultiRun Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
         }
     }

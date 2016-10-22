@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -9,13 +6,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using NLog;
 
 namespace MultiRun.Launcher
 {
     public sealed class ProcessStartInformation : INotifyPropertyChanged
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private ObservableCollection<string> _arguments;
         private int _delay;
@@ -58,10 +57,7 @@ namespace MultiRun.Launcher
         }
 
         [JsonIgnore]
-        public string FileExtension
-        {
-            get { return Path.GetExtension(FullPath); }
-        }
+        public string FileExtension => Path.GetExtension(FullPath);
 
         [JsonProperty(Required = Required.Always)]
         public string FullPath
@@ -71,7 +67,7 @@ namespace MultiRun.Launcher
             {
                 _fullPath = value ?? string.Empty;
                 NotifyPropertyChanged();
-
+                
                 NotifyPropertyChanged("Verbs");
                 if (Verb != null && !Verbs.Contains(Verb))
                 {
@@ -81,10 +77,7 @@ namespace MultiRun.Launcher
         }
 
         [JsonIgnore]
-        public ProcessWindowStyle GetProcessWindowStyle
-        {
-            get { return (ProcessWindowStyle)WindowStyle; }
-        }
+        public ProcessWindowStyle GetProcessWindowStyle => (ProcessWindowStyle)WindowStyle;
 
         public string Verb
         {
@@ -105,7 +98,7 @@ namespace MultiRun.Launcher
                 try { return new ProcessStartInfo(FullPath).Verbs; }
                 catch (Exception ex)
                 {
-                    logger.Warn(ex);
+                    Logger.Warn(ex);
                     return new string[0];
                 }
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using static MultiRun.Reader;
+using System.Linq;
 
 namespace MultiRun.Launcher
 {
@@ -16,12 +16,12 @@ namespace MultiRun.Launcher
         {
             if (Path.GetExtension(path) != ".mr")
             {
-                throw new ArgumentException("The file '" + path + "' is not a MultiRun file (.mr)");
+                throw new ArgumentException($"The file '{path}' is not a MultiRun file (.mr)");
             }
             return File.Exists(path);
         }
 
-        public static FileType GetFileType(this string path)
+        public static Reader.FileType GetFileType(this string path)
         {
             string[] contents = File.ReadAllLines(path);
 
@@ -33,47 +33,33 @@ namespace MultiRun.Launcher
                 switch (type)
                 {
                     case "json":
-                        return FileType.Json;
+                        return Reader.FileType.Json;
 
-                    case "plain":
                     default:
-                        return FileType.Plain;
+                        return Reader.FileType.Plain;
                 }
             }
             else
             {
-                return FileType.Plain;
+                return Reader.FileType.Plain;
             }
         }
 
         public static string CleanJsonContents(string[] contents)
         {
-            List<string> cleaned = new List<string>();
-            foreach (string line in contents)
-            {
-                string trimmedLine = line.Trim();
-                if (trimmedLine.Length == 0 || trimmedLine.StartsWith("@@") || trimmedLine.StartsWith("##")) { continue; }
-                else
-                {
-                    cleaned.Add(trimmedLine);
-                }
-            }
+            List<string> cleaned = contents
+                .Select(line => line.Trim())
+                .Where(trimmedLine => !(trimmedLine.Length == 0 || trimmedLine.StartsWith("@@") || trimmedLine.StartsWith("##")))
+                .ToList();
             return Convert.StringArrayToString(cleaned);
         }
 
         public static string[] CleanPlainContents(string[] contents)
         {
-            List<string> cleaned = new List<string>();
-            foreach (string line in contents)
-            {
-                string trimmedLine = line.Trim();
-                if (trimmedLine.Length == 0 || trimmedLine.StartsWith("@@") || trimmedLine.StartsWith("##")) { continue; }
-                else
-                {
-                    cleaned.Add(trimmedLine);
-                }
-            }
-            return cleaned.ToArray();
+            return contents
+                .Select(line => line.Trim())
+                .Where(trimmedLine => !(trimmedLine.Length == 0 || trimmedLine.StartsWith("@@") || trimmedLine.StartsWith("##")))
+                .ToArray();
         }
     }
 }

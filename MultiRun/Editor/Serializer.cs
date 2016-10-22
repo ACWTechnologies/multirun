@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace MultiRun.Editor
 {
@@ -9,7 +9,7 @@ namespace MultiRun.Editor
     {
         public static string[] JsonSerialize(IEnumerable<Launcher.ProcessStartInformation> items)
         {
-            if (items == null) { throw new ArgumentNullException("items"); }
+            if (items == null) { throw new ArgumentNullException(nameof(items)); }
 
             string json = JsonConvert.SerializeObject(items, Formatting.Indented);
             return json.AddTypeMetadata(Reader.FileType.Json);
@@ -17,13 +17,11 @@ namespace MultiRun.Editor
 
         public static string[] PlainSerialize(IEnumerable<Launcher.ProcessStartInformation> items)
         {
-            if (items == null) { throw new ArgumentNullException("items"); }
+            if (items == null) { throw new ArgumentNullException(nameof(items)); }
 
-            List<string> result = new List<string>();
-            foreach (var item in items)
-            {
-                result.Add(item.FullPath);
-            }
+            List<string> result = items
+                .Select(item => item.FullPath)
+                .ToList();
             return result.AddTypeMetadata(Reader.FileType.Plain);
         }
 
@@ -46,6 +44,8 @@ namespace MultiRun.Editor
                 case Reader.FileType.Plain:
                     prefix += "plain";
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
 
             list.Insert(0, prefix);
